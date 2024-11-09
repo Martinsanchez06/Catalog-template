@@ -1,7 +1,7 @@
 function Header() {
     return (
         <header className="Header bg-[#656565] h-screen w-screen py-[50px] px-[75px] text-white">
-            <div className="bg-[#888] h-full w-full rounded-tl-[40px] rounded-bl-[10px] rounded-tr-[10px] rounded-br-[40px] flex flex-col justify-between items-center py-[65px] px-[30px]">
+            <div className="bg-[#888] h-full w-full max-w-screen-xl m-auto rounded-tl-[40px] rounded-bl-[10px] rounded-tr-[10px] rounded-br-[40px] flex flex-col justify-between items-center py-[65px] px-[30px]">
                 <div className="flex flex-col justify-center items-center gap-8">
                     <div className="h-[200px] w-[1000px] bg-[#fff] rounded-2xl">
 
