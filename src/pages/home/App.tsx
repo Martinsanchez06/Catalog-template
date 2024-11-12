@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import CategoryDropdown from "../../components/CategoryDropdown";
 import CardMainComponent from "../../components/cardMainComponent";
 import Header from "../../components/header";
+import Footer from "../../components/footer";
 
 interface DiscountBadgeProps {
   discount: number;
@@ -129,6 +130,7 @@ const Home: React.FC = () => {
           />
         </section>
       </main>
+      <Footer />
     </div>
   );
 };
