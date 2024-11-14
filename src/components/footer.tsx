@@ -6,9 +6,9 @@ const Footer: React.FC = () => {
         <div className="flex flex-col gap-5">
           <p className="text-3xl font-bold	text-white">CONTACTANOS</p>
           <div className="flex justify-between">
-            <img src="/icons/footer/facebook.svg" alt="" />
-            <img src="/icons/footer/whatsapp.svg" alt="" />
-            <img src="/icons/footer/instagram.svg" alt="" />
+            <img src="/icons/footer/facebook.svg" alt="Facebook" />
+            <img src="/icons/footer/whatsapp.svg" alt="WhatsApp" />
+            <img src="/icons/footer/instagram.svg" alt="Instagram" />
           </div>
         </div>
       </div>

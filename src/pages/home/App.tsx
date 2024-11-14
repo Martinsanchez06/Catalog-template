@@ -1,8 +1,10 @@
 import React, { useState } from "react";
-import CategoryDropdown from "../../components/CategoryDropdown";
-import CardMainComponent from "../../components/cardMainComponent";
-import Header from "../../components/header";
-import Footer from "../../components/footer";
+import Header from "../../components/HeaderApp";
+import Footer from "../../components/Footer";
+import Button from "../../components/RedirectButtonComponent";
+import DropdownComponent from "../../components/DropdownComponent";
+import CardMainComponent from "../../components/CardHomeMainComponent";
+import { useScroll } from '../../hooks/ScrollContext';
 
 interface DiscountBadgeProps {
   discount: number;
@@ -44,15 +46,13 @@ const DiscountCardComponent: React.FC<DiscountCardComponentProps> = ({
 };
 
 const Home: React.FC = () => {
+  const { scrolled } = useScroll();
+
   const options = [
     { label: "Opción 1", value: "opcion1" },
     { label: "Opción 2", value: "opcion2" },
     { label: "Opción 3", value: "opcion3" },
   ];
-
-  const handleSelect = (value: string) => {
-    console.log("Opción seleccionada:", value);
-  };
 
   // Estado para controlar la cantidad de elementos mostrados
   const [visibleCards, setVisibleCards] = useState(12);
@@ -64,18 +64,28 @@ const Home: React.FC = () => {
 
   return (
     <div className="App">
-      <Header />
-      <main className="max-w-screen-xl flex gap-[50px] m-auto flex-col mt-[50px]">
+      <Header
+        scroll={120}
+        blur={175}
+      />
+      <main className={`max-w-screen-xl flex gap-[50px] m-auto flex-col ${scrolled ? "mt-[345px]" : "mt-[50px]"}`}>
         <section className="w-full border-2 border-secondaryColor flex justify-between items-center py-5 px-[15px] rounded-lg">
           <div className="flex border-tertiaryColor border-2 py-[5px] px-[9px] rounded-lg w-96 h-8">
             <img src="/icons/home/searchIcon.svg" alt="search icon" />
-            <input type="text" className="w-full" />
+            <input type="text" className="w-full pl-[5px]" placeholder="Buscar productos..." />
           </div>
-          <CategoryDropdown options={options} onSelect={handleSelect} />
+          <DropdownComponent
+            label="Filtrar por categoría"
+            options={options}
+            onSelect={(value) => console.log("Seleccionado:", value)}
+          />
         </section>
 
         <section className="flex gap-[30px] flex-col">
-          <h2 className="font-semibold text-xl">Lorem ipsum dolor</h2>
+          <div className="flex justify-between">
+            <h2 className="font-semibold text-xl">Lorem ipsum dolor</h2>
+            <Button className="px-2.5 py-1.5 bg-gray-400 text-white rounded-md  w-64" text={"Crear nuevo producto"} link="/new" blank={false} />
+          </div>
           <div className="flex gap-x-5 gap-y-[50px] flex-wrap">
             {Array.from({ length: 30 })
               .slice(0, visibleCards)
