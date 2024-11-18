@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import Header from "../../components/HeaderApp";
 import Footer from "../../components/Footer";
-import Button from "../../components/RedirectButtonComponent";
-import DropdownComponent from "../../components/DropdownComponent";
-import CardMainComponent from "../../components/CardHomeMainComponent";
+import Button from "../../components/General/RedirectButtonComponent";
+import DropdownComponent from "../../components/General/DropdownComponent";
+import CardMainComponent from "../../components/Home/CardHomeMainComponent";
 import { useScroll } from '../../hooks/ScrollContext';
 
 interface DiscountBadgeProps {

@@ -11,7 +11,7 @@ const throttle = (func: Function, limit: number) => {
                 if (Date.now() - lastRan >= limit) {
                     func(...args);
                     lastRan = Date.now();
-                }
+                } 
             }, limit - (Date.now() - lastRan));
         }
     };

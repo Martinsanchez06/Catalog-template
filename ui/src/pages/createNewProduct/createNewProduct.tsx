@@ -1,10 +1,10 @@
 import React from "react";
 import Header from "../../components/HeaderApp";
-import DropdownComponent from "../../components/DropdownComponent";
+import DropdownComponent from "../../components/General/DropdownComponent";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm, SubmitHandler } from "react-hook-form";
-import { useScroll } from '../../hooks/ScrollContext';
+import FileUpload from "../../components/Forms/FileUpload";
 
 interface ProductFormInputs {
     name: string;
@@ -23,7 +23,6 @@ const schema = yup.object().shape({
 });
 
 const CreateNewProduct: React.FC = () => {
-    const { scrolled } = useScroll();
 
     const { register, handleSubmit, formState: { errors } } = useForm<ProductFormInputs>({
         resolver: yupResolver(schema)
@@ -75,11 +74,7 @@ const CreateNewProduct: React.FC = () => {
                                 </div>
                                 <div>
                                     <label className="block font-medium mb-1">Imágenes</label>
-                                    <div className="border-2 border-dashed border-gray-300 rounded-md p-6 flex flex-col items-center">
-                                        <img src="/icons/upload-icon.svg" alt="Upload Icon" className="mb-2" />
-                                        <p className="text-gray-600">Drag and drop files on here</p>
-                                        <p className="text-gray-400 text-sm">Lorem ipsum dolor Lorem</p>
-                                    </div>
+                                    <FileUpload />
                                 </div>
                             </div>
                         </div>
