@@ -2,13 +2,13 @@ import React, { useState, useEffect, useRef } from 'react';
 
 interface Option {
   label: string;
-  value: string;
+  value: string | number;
 }
 
 interface DropdownComponentProps {
-  label: string;
+  label: string | number;
   options: Option[];
-  onSelect: (value: string) => void;
+  onSelect: (value: number | string) => void;
 }
 
 const DropdownComponent: React.FC<DropdownComponentProps> = ({ label, options, onSelect }) => {

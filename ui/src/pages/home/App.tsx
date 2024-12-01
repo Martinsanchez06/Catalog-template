@@ -1,144 +1,228 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import Header from "../../components/HeaderApp";
 import Footer from "../../components/Footer";
 import Button from "../../components/General/RedirectButtonComponent";
 import DropdownComponent from "../../components/General/DropdownComponent";
 import CardMainComponent from "../../components/Home/CardHomeMainComponent";
-import { useScroll } from '../../hooks/ScrollContext';
+import { useScroll } from "../../hooks/ScrollContext";
+import useGet from "../../hooks/GetRequest";
+import AddToCartButton from "../../components/General/AddToCardComponent";
+import keyChangeSlice, { keyChange } from "../../redux/slices/keyChangeSlice";
+import { useAppSelector } from "../../redux/store";
 
-interface DiscountBadgeProps {
-  discount: number;
-}
-
-const DiscountBadge: React.FC<DiscountBadgeProps> = ({ discount }) => {
-  return (
-    <div className="absolute top-2 left-2 bg-red-600 text-white rounded-full w-10 h-10 flex items-center justify-center text-sm font-semibold">
-      {discount}%
-    </div>
-  );
-};
-
-interface DiscountCardComponentProps {
-  title: string;
-  price: string;
+interface Product {
+  id: number;
+  name: string;
   description: string;
-  discount: number;
+  category_id: string;
+  price: number;
+  images: string[];
 }
 
-const DiscountCardComponent: React.FC<DiscountCardComponentProps> = ({
-  title,
-  price,
-  description,
-  discount,
-}) => {
-  return (
-    <div className="relative w-[352px] p-4 bg-white rounded-lg shadow-cardHomeShadow flex flex-col items-center">
-      <DiscountBadge discount={discount} />
-      <div className="w-full h-96 bg-gray-300 rounded-md mb-4"></div>
-      <h3 className="text-lg font-semibold mb-1">{title}</h3>
-      <p className="text-gray-500 mb-2">{price}</p>
-      <p className="text-gray-400 mb-4">{description}</p>
-      <button className="px-2.5 py-1.5 bg-gray-400 text-white rounded-md">
-        Ver detalle
-      </button>
-    </div>
-  );
-};
+interface Category {
+  id: number;
+  name: string;
+  description: string;
+}
 
 const Home: React.FC = () => {
   const { scrolled } = useScroll();
+  const keyChangeCount = useAppSelector((state) => state.example.keyChangeCount);
 
-  const options = [
-    { label: "Opción 1", value: "opcion1" },
-    { label: "Opción 2", value: "opcion2" },
-    { label: "Opción 3", value: "opcion3" },
-  ];
+  // Pasar `keyChangeCount` como reloadTrigger al hook
+  const { data: products, isLoading: productsLoading, error: productsError } = useGet<Product[]>(
+    "http://127.0.0.1:8000/api/products",
+    keyChangeCount
+  );
+  const { data: categories, isLoading: categoriesLoading, error: categoriesError } = useGet<Category[]>(
+    "http://127.0.0.1:8000/api/categories"
+  );
 
-  // Estado para controlar la cantidad de elementos mostrados
-  const [visibleCards, setVisibleCards] = useState(12);
+  const [filter, setFilter] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState<string>("");
 
-  // Función para mostrar más cards
-  const showMoreCards = () => {
-    setVisibleCards((prev) => Math.min(prev + 8, 30)); // Límite de 30 cards
-  };
+  // Crear un mapeo de categorías: category_id -> category_name
+  const categoryMap = useMemo(
+    () =>
+      categories?.reduce((acc, category) => {
+        acc[category.id] = category.name;
+        return acc;
+      }, {} as Record<number, string>),
+    [categories]
+  );
 
-  return (
+  // Filtrar productos por término de búsqueda
+  const filteredProducts = useMemo(
+    () =>
+      (products || []).filter((product) =>
+        product.name.toLowerCase().includes(searchTerm.toLowerCase())
+      ),
+    [products, searchTerm]
+  );
+
+  // Agrupar productos por categoría
+  const groupedProducts = useMemo(
+    () =>
+      filteredProducts.reduce((acc, product) => {
+        if (!acc[product.category_id]) {
+          acc[product.category_id] = [];
+        }
+        acc[product.category_id].push(product);
+        return acc;
+      }, {} as Record<string, Product[]>),
+    [filteredProducts]
+  );
+
+  // Opciones para el dropdown
+  const options = useMemo(
+    () =>
+      Object.keys(groupedProducts || {}).map((categoryId) => ({
+        label: categoryMap?.[parseInt(categoryId)] || `Categoría ${categoryId}`,
+        value: categoryId,
+      })),
+    [groupedProducts, categoryMap]
+  );
+
+  if (productsLoading || categoriesLoading) return (
     <div className="App">
-      <Header
-        scroll={120}
-        blur={175}
-      />
-      <main className={`max-w-screen-xl flex gap-[50px] m-auto flex-col ${scrolled ? "mt-[345px]" : "mt-[50px]"}`}>
+      <Header scroll={120} blur={175} />
+      <main
+        className={`max-w-screen-xl flex gap-[50px] m-auto flex-col ${scrolled ? "mt-[345px]" : "mt-[50px]"
+          } min-h-screen`}
+      >
+        {/* Barra de búsqueda y filtro */}
         <section className="w-full border-2 border-secondaryColor flex justify-between items-center py-5 px-[15px] rounded-lg">
           <div className="flex border-tertiaryColor border-2 py-[5px] px-[9px] rounded-lg w-96 h-8">
             <img src="/icons/home/searchIcon.svg" alt="search icon" />
-            <input type="text" className="w-full pl-[5px]" placeholder="Buscar productos..." />
+            <input
+              type="text"
+              className="w-full pl-[5px]"
+              placeholder="Buscar productos..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
           </div>
           <DropdownComponent
             label="Filtrar por categoría"
             options={options}
-            onSelect={(value) => console.log("Seleccionado:", value)}
+            onSelect={(value) => setFilter(value.toString())}
           />
         </section>
+        <Button
+          className="px-2.5 py-1.5 bg-gray-400 text-white rounded-md w-64"
+          text={"Crear nuevo producto"}
+          link="/new"
+          blank={false}
+        />
+        <p>Cargando productos...</p>
+      </main>
+      <Footer />
+    </div>
+  );
+  if (productsError || categoriesError) return (
+    <div className="App">
+      <Header scroll={120} blur={175} />
+      <main
+        className={`max-w-screen-xl flex gap-[50px] m-auto flex-col ${scrolled ? "mt-[345px]" : "mt-[50px]"
+          } min-h-screen`}
+      >
+        {/* Barra de búsqueda y filtro */}
+        <section className="w-full border-2 border-secondaryColor flex justify-between items-center py-5 px-[15px] rounded-lg">
+          <div className="flex border-tertiaryColor border-2 py-[5px] px-[9px] rounded-lg w-96 h-8">
+            <img src="/icons/home/searchIcon.svg" alt="search icon" />
+            <input
+              type="text"
+              className="w-full pl-[5px]"
+              placeholder="Buscar productos..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          <DropdownComponent
+            label="Filtrar por categoría"
+            options={options}
+            onSelect={(value) => setFilter(value.toString())}
+          />
+        </section>
+        <Button
+          className="px-2.5 py-1.5 bg-gray-400 text-white rounded-md w-64"
+          text={"Crear nuevo producto"}
+          link="/new"
+          blank={false}
+        />
+        <p>Error al cargar datos.</p>
+      </main>
+      <Footer />
+    </div>
+  );
 
-        <section className="flex gap-[30px] flex-col">
-          <div className="flex justify-between">
-            <h2 className="font-semibold text-xl">Lorem ipsum dolor</h2>
-            <Button className="px-2.5 py-1.5 bg-gray-400 text-white rounded-md  w-64" text={"Crear nuevo producto"} link="/new" blank={false} />
+  return (
+    <div className="App">
+      <Header scroll={120} blur={175} />
+      <main
+        className={`max-w-screen-xl flex gap-[50px] m-auto flex-col ${scrolled ? "mt-[345px]" : "mt-[50px]"
+          } min-h-screen`}
+      >
+        {/* Barra de búsqueda y filtro */}
+        <section className="w-full border-2 border-secondaryColor flex justify-between items-center py-5 px-[15px] rounded-lg">
+          <div className="flex border-tertiaryColor border-2 py-[5px] px-[9px] rounded-lg w-96 h-8">
+            <img src="/icons/home/searchIcon.svg" alt="search icon" />
+            <input
+              type="text"
+              className="w-full pl-[5px]"
+              placeholder="Buscar productos..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
           </div>
-          <div className="flex gap-x-5 gap-y-[50px] flex-wrap">
-            {Array.from({ length: 30 })
-              .slice(0, visibleCards)
-              .map((_, index) => (
-                <CardMainComponent
-                  key={index}
-                  title={`Lorem ${index + 1}`}
-                  price={`$00.000`}
-                  description="Lorem ipsum"
-                />
-              ))}
-          </div>
-          {visibleCards < 30 && (
-            <button
-              onClick={showMoreCards}
-              className="px-2.5 py-1.5 bg-gray-400 text-white rounded-md"
-            >
-              Ver más
-            </button>
-          )}
-        </section>
-        <section className="h-96 w-full bg-tertiaryColor flex justify-between py-[30px] px-[80px] items-center rounded-[20px]">
-          <div className="rounded-2xl h-52 w-80 bg-white"></div>
-          <p className="w-[645px] text-white text-xl">
-            Lorem, ipsum dolor sit amet consectetur adipisicing elit. Quasi odio
-            corrupti recusandae et error eveniet laborum aliquam id praesentium
-            consectetur sit placeat, tempore illo. Vitae sapiente quam nobis
-            neque modi?Lorem, ipsum dolor sit amet consectetur adipisicing elit.
-            Quasi odio corrupti recusandae et error eveniet laborum aliquam id
-            praesentium consectetur sit placeat, tempore illo. Vitae sapiente
-            quam nobis neque modi?
-          </p>
-        </section>
-        <section className="flex gap-5 justify-between">
-          <DiscountCardComponent
-            title="Lorem 1"
-            price="$00.000"
-            description="Lorem ipsum"
-            discount={30}
-          />
-          <DiscountCardComponent
-            title="Lorem 2"
-            price="$00.000"
-            description="Lorem ipsum"
-            discount={20}
-          />
-          <DiscountCardComponent
-            title="Lorem 3"
-            price="$00.000"
-            description="Lorem ipsum"
-            discount={10}
+          <DropdownComponent
+            label="Filtrar por categoría"
+            options={options}
+            onSelect={(value) => setFilter(value.toString())}
           />
         </section>
+        <Button
+          className="px-2.5 py-1.5 bg-gray-400 text-white rounded-md w-64"
+          text={"Crear nuevo producto"}
+          link="/new"
+          blank={false}
+        />
+        {/* Renderizar secciones de productos */}
+        {Object.keys(groupedProducts || {})
+          .filter((categoryId) => (filter ? categoryId === filter : true)) // Aplicar filtro
+          .map((categoryId) => (
+            <section key={categoryId} className="flex gap-[30px] flex-col">
+              <div className="flex justify-between">
+                <h2 className="font-semibold text-xl">
+                  {categoryMap?.[parseInt(categoryId)] || `Categoría ${categoryId}`}
+                </h2>
+              </div>
+              <div className="flex gap-x-5 gap-y-[50px] flex-wrap">
+                {groupedProducts[categoryId]?.map((product) => (
+                  <div
+                    key={product.id}
+                    className="relative w-[305px] p-4 bg-white rounded-lg shadow-cardHomeShadow flex flex-col items-center"
+                  >
+                    <CardMainComponent
+                      id={product.id}
+                      title={product.name}
+                      image_url={product.images[0]}
+                      price={`$${product.price}`}
+                      description={product.description}
+                    />
+                    <AddToCartButton
+                      id={product.id}
+                      name={product.name}
+                      price={product.price}
+                      category_id={product.category_id}
+                      className={"px-2.5 py-1.5 bg-gray-400 mt-5 text-white rounded-md"}
+                      image_url={product.images}
+                    />
+                  </div>
+                ))}
+              </div>
+            </section>
+          ))}
       </main>
       <Footer />
     </div>

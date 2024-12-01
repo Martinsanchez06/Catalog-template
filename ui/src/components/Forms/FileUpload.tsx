@@ -1,29 +1,30 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef } from "react";
 
-const FileUpload: React.FC = () => {
+interface FileUploadProps {
+    onFilesSelected: (files: File[]) => void; // Callback para notificar los archivos seleccionados
+}
+
+const FileUpload: React.FC<FileUploadProps> = ({ onFilesSelected }) => {
     const [files, setFiles] = useState<File[]>([]);
     const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-    // Maneja los archivos seleccionados o arrastrados
     const handleFiles = (selectedFiles: FileList) => {
         const fileArray = Array.from(selectedFiles);
-        setFiles(fileArray);
+        setFiles((prevFiles) => [...prevFiles, ...fileArray]);
+        onFilesSelected([...files, ...fileArray]); // Notifica los archivos seleccionados
     };
 
-    // Evento de selección de archivos
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files) {
             handleFiles(event.target.files);
         }
     };
 
-    // Evento de arrastre de archivos sobre el área
     const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
         event.preventDefault();
         event.stopPropagation();
     };
 
-    // Evento cuando los archivos se sueltan en el área de drop
     const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
         event.preventDefault();
         event.stopPropagation();
@@ -32,7 +33,6 @@ const FileUpload: React.FC = () => {
         }
     };
 
-    // Abre el diálogo de selección de archivos
     const handleClick = () => {
         fileInputRef.current?.click();
     };
@@ -49,9 +49,10 @@ const FileUpload: React.FC = () => {
                 ref={fileInputRef}
                 className="hidden"
                 multiple
+                accept="image/*"
                 onChange={handleFileChange}
             />
-            <img src="/icons/upload-icon.svg" alt="Upload Icon" className="mb-2" />
+            <img src="/icons/upload-icon.svg" alt="Upload Icon" className="mb-2 w-8 h-8" />
             <p className="text-gray-600">Arrastra y suelta archivos aquí</p>
             <p className="text-gray-400 text-sm">o haz clic para seleccionarlos</p>
 
@@ -62,13 +63,6 @@ const FileUpload: React.FC = () => {
                         {files.map((file, index) => (
                             <li key={index} className="text-gray-500 text-sm">
                                 {file.name} ({Math.round(file.size / 1024)} KB)
-                                {file.type.startsWith("image/") && (
-                                    <img
-                                        src={URL.createObjectURL(file)}
-                                        alt={file.name}
-                                        className="mt-2 w-20 h-20 object-cover rounded-md"
-                                    />
-                                )}
                             </li>
                         ))}
                     </ul>

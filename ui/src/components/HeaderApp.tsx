@@ -2,6 +2,8 @@ import React, { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useScroll } from '../hooks/ScrollContext';
 import { Link } from 'react-router-dom';
+import { RootState, useAppSelector } from '../redux/store';
+import CartSummary from './cart';
 
 interface HeaderProps {
   scroll?: number;
@@ -16,6 +18,7 @@ const Header: React.FC<HeaderProps> = ({ scroll, blur }) => {
   const isHomePage = location.pathname === '/';
   const headerScrolled = isHomePage ? scrolled : true; // Siempre en estado "scrolled" si no es Home
   const headerBlur = isHomePage ? isBlur : isBlur; // Aplica "blur" también si no es Home
+  const cartItems = useAppSelector((state: RootState) => state.cart.items);
 
   return (
     <header className={`top-0 w-full transition-all duration-300 backdrop-blur-sm ${headerScrolled ? 'fixed h-[170px] py-4 px-8' : 'h-screen py-[50px] px-[75px]'} ${headerBlur ? "bg-[rgba(101, 101, 101, 0.01)]" : "bg-[#656565]"} text-white z-[100]`}>
@@ -29,7 +32,7 @@ const Header: React.FC<HeaderProps> = ({ scroll, blur }) => {
             <p>Lorem</p>
             <p>Lorem</p>
             <p>Lorem</p>
-            <img src={`/icons/header/${headerBlur ? "shoppingCartIconBlack.svg" : "shoppingCartIconWhite.svg"}`} className='transition-all duration-300' alt="Carrito de compras" />
+            <CartSummary blur={headerBlur} />
           </div>
           {!headerScrolled && (
             <h2 className="text-4xl">
