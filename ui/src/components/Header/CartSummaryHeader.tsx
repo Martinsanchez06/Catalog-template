@@ -1,9 +1,9 @@
 // src/components/CartSummary.tsx
 import React, { useState } from "react";
-import { useAppSelector, useAppDispatch } from "../redux/store";
-import { RootState } from "../redux/store";
-import { removeFromCart, clearCart } from "../redux/slices/cartSlice";
-import useGet from "../hooks/GetRequest";
+import { useAppSelector, useAppDispatch } from "../../redux/store";
+import { RootState } from "../../redux/store";
+import { removeFromCart, clearCart } from "../../redux/slices/cartSlice";
+import useGet from "../../hooks/GetRequest";
 
 interface CartSummaryProps {
     blur: boolean; // Nueva prop para manejar el estado de blur
@@ -55,10 +55,6 @@ const CartSummary: React.FC<CartSummaryProps> = ({ blur }) => {
         return message;
     };
 
-    if (cartItems.length === 0) {
-        return <p>Tu carrito está vacío.</p>;
-    }
-
     const quotationText = generateQuotationText();
 
     return (
@@ -71,7 +67,7 @@ const CartSummary: React.FC<CartSummaryProps> = ({ blur }) => {
                     alt="Carrito de compras"
                 />
                 {cartItems.length > 0 && (
-                    <span className="absolute top-[-5px] left-[20px] bg-red-500 text-white rounded-full text-xs px-1 py-0">
+                    <span className="absolute top-[-5px] left-[20px] bg-red-500 text-white rounded-full flex justify-center items-center text-xs h-[17px] w-[17px] pl-[1px]">
                         {cartItems.reduce((total, item) => total + item.quantity, 0)}
                     </span>
                 )}
@@ -81,13 +77,13 @@ const CartSummary: React.FC<CartSummaryProps> = ({ blur }) => {
             {isOpen && (
                 <div className="absolute right-0 mt-2 w-80 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
                     <div className="p-4">
-                        <h3 className="text-lg font-semibold mb-2">Carrito</h3>
+                        <h3 className="text-lg font-semibold mb-2 text-black">Carrito</h3>
                         {cartItems.length > 0 ? (
                             <ul className="max-h-64 overflow-y-auto">
                                 {cartItems.map((item) => (
                                     <li key={item.id} className="flex justify-between items-center mb-2">
                                         <div>
-                                            <p className="font-medium">{item.name}</p>
+                                            <p className="font-medium text-black">{item.name}</p>
                                             <p className="text-sm text-gray-500">{`$${item.price} x ${item.quantity}`}</p>
                                         </div>
                                         <button
@@ -120,7 +116,7 @@ const CartSummary: React.FC<CartSummaryProps> = ({ blur }) => {
                             </button>
                             <button
                                 onClick={() => dispatch(clearCart())}
-                                className="text-red-500 hover:underline text-sm"
+                                className="text-red-500 hover:underline text-sm mt-5"
                             >
                                 Vaciar carrito
                             </button>

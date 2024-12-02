@@ -34,12 +34,17 @@ const Home: React.FC = () => {
     "http://127.0.0.1:8000/api/products",
     keyChangeCount
   );
+
   const { data: categories, isLoading: categoriesLoading, error: categoriesError } = useGet<Category[]>(
     "http://127.0.0.1:8000/api/categories"
-  );
-
+  )
+  
+  console.log(categories);
   const [filter, setFilter] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>("");
+  const [visibleCategories, setVisibleCategories] = useState<number>(2);
+  console.log(visibleCategories);
+  
 
   // Crear un mapeo de categorías: category_id -> category_name
   const categoryMap = useMemo(
@@ -74,14 +79,32 @@ const Home: React.FC = () => {
   );
 
   // Opciones para el dropdown
-  const options = useMemo(
-    () =>
-      Object.keys(groupedProducts || {}).map((categoryId) => ({
-        label: categoryMap?.[parseInt(categoryId)] || `Categoría ${categoryId}`,
-        value: categoryId,
-      })),
-    [groupedProducts, categoryMap]
-  );
+  const options = useMemo(() => {
+    const baseOptions = Object.keys(groupedProducts || {}).map((categoryId) => ({
+      label: categoryMap?.[parseInt(categoryId)] || `Categoría ${categoryId}`,
+      value: categoryId,
+    }));
+    // Añadir opción para cancelar el filtro
+    return [{ label: "Mostrar todas las categorías", value: "" }, ...baseOptions];
+  }, [groupedProducts, categoryMap]);
+  
+
+  // Manejar lógica de "Ver más"
+  const handleShowMore = () => {
+    setVisibleCategories((prev) => prev + 1); // Incrementa una categoría más cada vez que se llama
+  };
+
+  const visibleCategoryIds = useMemo(() => {
+    const allCategoryIds = Object.keys(groupedProducts || {});
+    if (filter) {
+      return allCategoryIds.includes(filter) ? [filter] : [];
+    }
+    return allCategoryIds.slice(0, visibleCategories);
+  }, [groupedProducts, visibleCategories, filter]);
+  
+
+  console.log(filter);
+  
 
   if (productsLoading || categoriesLoading) return (
     <div className="App">
@@ -105,8 +128,8 @@ const Home: React.FC = () => {
           <DropdownComponent
             label="Filtrar por categoría"
             options={options}
-            onSelect={(value) => setFilter(value.toString())}
-          />
+            onSelect={(value) => setFilter(value.toString() || null)} // Si el valor es vacío, resetea el filtro
+            />
         </section>
         <Button
           className="px-2.5 py-1.5 bg-gray-400 text-white rounded-md w-64"
@@ -188,7 +211,7 @@ const Home: React.FC = () => {
           blank={false}
         />
         {/* Renderizar secciones de productos */}
-        {Object.keys(groupedProducts || {})
+        {visibleCategoryIds
           .filter((categoryId) => (filter ? categoryId === filter : true)) // Aplicar filtro
           .map((categoryId) => (
             <section key={categoryId} className="flex gap-[30px] flex-col">
@@ -215,7 +238,7 @@ const Home: React.FC = () => {
                       name={product.name}
                       price={product.price}
                       category_id={product.category_id}
-                      className={"px-2.5 py-1.5 bg-gray-400 mt-5 text-white rounded-md"}
+                      className={"px-2.5 py-1.5 bg-gray-400 mt-5 text-white rounded-md w-full"}
                       image_url={product.images}
                     />
                   </div>
@@ -223,6 +246,14 @@ const Home: React.FC = () => {
               </div>
             </section>
           ))}
+        <div className="text-center">
+          <button
+            onClick={handleShowMore}
+            className={`px-2.5 py-1.5 bg-gray-400 mt-5 text-white rounded-md w-[220px] ${((Object.keys(groupedProducts).length && Object.keys(groupedProducts).length <= 2) || (visibleCategoryIds.length >= Object.keys(groupedProducts).length)) ? "hidden" : "block"}`}
+          >
+            Ver más categorias
+          </button>
+        </div>
       </main>
       <Footer />
     </div>

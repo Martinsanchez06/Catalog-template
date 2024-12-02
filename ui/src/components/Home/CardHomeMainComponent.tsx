@@ -78,14 +78,16 @@ const CardMainComponent: React.FC<CardMainComponentProps> = ({
       </div>
       <h3 className="text-lg font-semibold mb-1">{title}</h3>
       <p className="text-gray-500 mb-2">{price}</p>
-      <p className="text-gray-400 mb-4">{description}</p>
+      <p className="text-gray-400 mb-4">
+        {description.length > 40 ? `${description.slice(0, 28)}...` : description}
+      </p>
       <Link
         to={`/product/${id}`}
-        className="px-2.5 py-1.5 bg-gray-400 text-white rounded-md"
+        className="px-2.5 py-1.5 bg-gray-400 text-white rounded-md w-full text-center"
       >
         Ver detalle
       </Link>
-      <button className="px-2.5 py-1.5 bg-gray-400 mt-5 text-white rounded-md" onClick={() => setShowEditProduct(!showEditProduct)}>Editar</button>
+      <button className="px-2.5 py-1.5 bg-gray-400 mt-5 text-white rounded-md w-full" onClick={() => setShowEditProduct(!showEditProduct)}>Editar</button>
       {showEditProduct && (
         <PopUpEditComponent productId={id} onClose={() => setShowEditProduct(!showEditProduct)} />
       )}

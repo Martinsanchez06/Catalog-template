@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
-import FetchComponent from "../../components/fetch/FetchComponent";
+import FetchComponent from "../../components/Fetch/FetchComponent";
 import ProductForm from "../../components/Forms/ProductForm";
 
 interface Product {

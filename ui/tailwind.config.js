@@ -6,9 +6,9 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        secondaryColor: '#B0B0B0',
+        secondaryColor: '#FBC7C7',
         tertiaryColor: '#B4B4B4',
-        headerBackground: '#656565',
+        mainColor: '#ED1E1E',
         innerBackground: '#888',
       },
       boxShadow: {
