@@ -39,11 +39,9 @@ const Home: React.FC = () => {
     "http://127.0.0.1:8000/api/categories"
   )
   
-  console.log(categories);
   const [filter, setFilter] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [visibleCategories, setVisibleCategories] = useState<number>(2);
-  console.log(visibleCategories);
   
 
   // Crear un mapeo de categorías: category_id -> category_name
@@ -102,8 +100,6 @@ const Home: React.FC = () => {
     return allCategoryIds.slice(0, visibleCategories);
   }, [groupedProducts, visibleCategories, filter]);
   
-
-  console.log(filter);
   
 
   if (productsLoading || categoriesLoading) return (

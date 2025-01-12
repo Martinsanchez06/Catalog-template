@@ -37,7 +37,6 @@ const PopUpEditComponent: React.FC<PopUpEditComponentProps> = ({ productId, onCl
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      console.log((popUpRef.current && !popUpRef.current.contains(event.target as Node)));
       if (popUpRef.current && !popUpRef.current.contains(event.target as Node)) {
         onClose()
       }

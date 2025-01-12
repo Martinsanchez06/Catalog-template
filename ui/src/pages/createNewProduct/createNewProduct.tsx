@@ -29,10 +29,9 @@ const CreateProductPage: React.FC = () => {
                 },
                 images: data.image_url, // Enviar las mismas imágenes en este campo
             };
-    
-            console.log("Payload enviado al backend:", productPayload);
+
             const response = await axios.post("http://127.0.0.1:8000/api/products", productPayload);
-            console.log("Producto creado:", response.data);
+
             navigate('/')
         } catch (error) {
             console.error("Error al crear el producto:", error);

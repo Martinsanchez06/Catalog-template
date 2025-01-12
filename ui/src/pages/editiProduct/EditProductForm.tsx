@@ -32,7 +32,6 @@ const EditProductPage: React.FC = () => {
                 throw new Error("Error al actualizar el producto");
             }
 
-            console.log("Producto actualizado con éxito");
         } catch (error) {
             console.error("Error al actualizar el producto:", error);
         }

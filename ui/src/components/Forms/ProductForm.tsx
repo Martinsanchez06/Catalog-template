@@ -75,7 +75,6 @@ const ProductForm: React.FC<ProductFormProps> = ({
                 );
                 setimage_url((prev) => [...prev, ...newimage_url]); // Prev siempre es un array
                 const productData = { ...data, image_url: newimage_url};
-                console.log(productData);
                 await onSubmit(productData);
             }
 

@@ -41,8 +41,6 @@ const FileUpload: React.FC = () => {
             setUploading(false);
         }
     };
-
-    console.log(fileUrls);
     
 
     return (
